@@ -62,7 +62,7 @@ class Search:
             print node_price.__str__()
             return 1
 
-        children = self.geography.get_outbount_roads(node_id)
+        children = self.geography.get_outbound_roads(node_id)
 
         ancesters = list(node_parents)
         ancesters.append(node_id)

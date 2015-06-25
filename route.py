@@ -1,11 +1,17 @@
 __author__ = 'bbujisic'
 import sys
 
+'''
+@todo: Isolate function which decides price of child node.
+@todo: Refactor to be more by the book.
+@todo: See if you can move geography to separate JSON files.
+'''
+
 from search import Search
+
 
 def route(source, destination):
     search = Search(source, destination)
-
 
 
 if __name__ == '__main__':
