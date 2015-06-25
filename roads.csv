@@ -1,8 +1,31 @@
-11000,21000,93.7, Beograd - Novi Sad
+11000,21000,93.7, Beograd - Novi Sad (autoput)
 11000,26000,21.6, Beograd - Pancevo
+11000,23260,57.8, Beograd - Perlez
+11000,11307,17.4, Beograd - Vinca
+11000,11311,66.7, Beograd - Radinac (autoput)
+21000,21241,12.2, Kac - Novi Sad
+21244,21241,13.7, Kac - Sajkas
+21240,21241,20.9, Titel - Sajkas
+21240,23260,8.1, Titel - Perlez
+26204,23260,27, Opovo - Perlez
+26204,26203,7.4, Opovo - Sefkerin
+26201,26203,13.5, Jabuka - Sefkerin
+23264,23260,12.5, Farkazdin - Perlez
+23264,26207,12.5, Farkazdin - Idvor
+26210,26207,13.6, Kovacica - Idvor
+26210,26214,5.6, Kovacica - Debeljaca
+26210,26213,12.8, Kovacica - Crepaja
 26201,26000,11.4, Pancevo - Jabuka
-26201,26204,20.1, Jabuka - Opovo
-26204,21240,31.2, Opovo - Titel
-21241,21240,34,   Titel - Kac
-11000,21240,68.9, Beograd - Titel
-21000,21241,13.3, Kac - Novi Sad
+26213,26000,18.4, Pancevo - Crepaja
+26222,26000,20.2, Pancevo - Bavaniste
+26232,26000,9.3, Pancevo - Starcevo
+26232,26230,5.7, Starcevo - Omoljica
+26234,26230,7.7, Brestovac - Omoljica
+26234,26228,10.3, Brestovac - Skorenovac
+26220,26228,6.8, Kovin - Skorenovac
+26220,26222,12.7, Kovin - Bavaniste
+26220,11300,11.6, Kovin - Smederevo
+11311,11300,5.8, Radinac - Smederevo
+11306,11300,19.6, Grocka - Smederevo
+11306,113071,11.3, Grocka - Ritopek
+11307,113071,5, Vinca - Ritopek

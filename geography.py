@@ -18,7 +18,7 @@ class Geography:
             reader = csv.reader(csvfile)
             for row in reader:
                 postal_code, location_name = row
-                self.locations.append((int(postal_code), location_name))
+                self.locations.append((int(postal_code), location_name.strip()))
 
         # @todo: Handle exceptions!
         with open('roads.csv', 'rb') as csvfile:
