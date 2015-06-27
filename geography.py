@@ -37,6 +37,15 @@ class Geography:
             return -1
         return self.locations[post_codes[0]][0]
 
+    def get_location_name(self, post_code):
+        """
+        For the given post code, returns its name.
+        """
+        locations = [i for i, v in enumerate(self.locations) if v[0] == post_code]
+        if len(locations) == 0:
+            return ''
+        return self.locations[locations[0]][1]
+
     def get_outbound_roads(self, post_code):
         """
         For the given location, returns all the connected locations with distance to them.
