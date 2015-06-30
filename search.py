@@ -1,100 +1,131 @@
 __author__ = 'bbujisic'
 
-from geography import Geography
+from problem_routing import ProblemRouting
+import sys
 
+class Search(object):
+    fringe = []
+    closed = []
+    def __init__(self, problem):
+        self.problem = problem
+        root_node = Node(problem.root_state)
+        self.fringe.append(root_node)
 
-class Queue:
-    def __init__(self, sourceID):
-        self.queue = [(sourceID, 0, [])]
-
-    def add_child(self, id, price, ancesters):
-        # Adds a child to the queue list.
-        self.queue.append((id, price, ancesters))
-
-    def get_cheapest_child(self):
-        # Returns cheapest child and removes it from the queue list.
-        return self.queue.pop(0)
-
-    def count(self):
-        # Returns cheapest child and removes it from the queue list.
-        return len(self.queue)
-
-    def sort(self):
-        # Sort the queue by price (2nd element of tuple).
-        self.queue.sort(key=lambda tup: tup[1])
-
-
-class Search:
-    count_nodes = 0
-    selected_route = []
-    selected_route_price = 0
-
-    search_depth = 0
-
-    def __init__(self, source, destination):
-        self.geography = Geography()
-
-        self.source_id = self.geography.get_post_code(source)
-        self.destination_id = self.geography.get_post_code(destination)
-
-        if self.source_id == -1:
-            raise ValueError(source + " is not a valid location.")
-
-        if self.destination_id == -1:
-            raise ValueError(destination + " is not a valid location.")
-
-        # Add root element to the search queue
-        self.queue = Queue(self.source_id)
-
-    def go(self):
+    def go(self, funct):
         while True:
-            output = self.iterate()
-            if output == -1:
-                return "Route could not be calculated."
-            if output == 1:
-                return "Route successfully calculated."
+            status = getattr(self, 'astar')()
 
+            if status == 1:
+                states = []
+                for node in self.path:
+                    states.append(node.state)
+                return states
 
-    def iterate(self):
+    def astar(self):
 
-        # End of search. No route found.
-        if self.queue.count() == 0:
-            return -1
+        # Check if fringe is empty. If yes -- return -1: status which signalizes that search completed without result
+        if len(self.fringe) == 0:
+            raise PathNotFoundException()
 
-        # Load next candidate for search. Still decoupled from geography!
-        node_id, node_price, node_parents = self.queue.get_cheapest_child()
+        # Find the next node (one with least cost) in the fringe.
+        min_cost = min(node.cost for node in self.fringe)
+        for parent_node in self.fringe:
+            if parent_node.cost == min_cost:
+                break
 
-        # It is easier to me to store information of all ancestors within child's tuple, even though it is not
-        # efficient. @todo: See to keep separate list with active tree. That way we won't waste too much memory.
-        ancestors = list(node_parents)
-        ancestors.append(node_id)
-
-        # Increase node counter. It's a benchmark thing.
-        self.count_nodes += 1
-        if len(ancestors) != self.search_depth:
-            self.search_depth = len(ancestors)
-            print self.count_nodes.__str__() + ' | ' + self.queue.count().__str__() + ' | ' + len(ancestors).__str__()
-
-
-        # End of search. Route found!
-        # @todo: Maybe switch destination_id to target_state_id -- something more decoupled from geography.
-        if node_id == self.destination_id:
-            self.selected_route = ancestors
-            self.selected_route_price = node_price
+        # Check if we solved the problem (i.e. found searched node). If yes -- return 1.
+        if problem.goal_test(parent_node.state):
+            self.path = parent_node.get_path()
             return 1
 
-        # Load all the node's children.
-        # @todo: Decouple from geography by renaming the function to get_children!
-        children = self.geography.get_outbound_roads(node_id)
+        # Move the examined node from fringe to closed.
+        self.closed.append(parent_node)
+        self.fringe.remove(parent_node)
 
-        # Iterate through children, create nodes (which are basically 3-item tupples) and add them to the queue.
-        for child in children:
-            if not child[0] in ancestors:
-                # NB: child price is a sum of entire branch's price.
-                # @todo: Something appears to be wrong in price calculation!
-                self.queue.add_child(child[0], child[1] + node_price, ancestors)
+        # Load all possible successors to a given state.
+        children = problem.successors_get(parent_node.state)
 
-        # Oh man! This is EXTREMELY expensive procedure!
-        self.queue.sort()
+        # Add to fringe only the states that were not already examined.
+        for child_state in children:
+            if not any(closed_node.state == child_state for closed_node in self.closed):
+                child_cost = problem.cost_get(parent_node.state, child_state)
+                child_heuristics = problem.heuristics_get(child_state)
+                self.fringe.append(Node(child_state, parent_node, child_cost + child_heuristics + parent_node.cost))
 
         return 0
+
+
+
+class Node(object):
+    """
+    A node knows about itself, it knows about its parents and it knows about its depth.
+    And it is responsible to return the list of all of its ancestors!
+    """
+    depth = 0
+
+    def __init__(self, state, parent=None, cost=0):
+        """
+        Initialization of variables
+        """
+        self.state, self.parent, self.cost = state, parent, cost
+        if parent:
+            self.depth = parent.depth + 1
+
+    def __str__(self):
+        """
+        Let's simply make the debugging beautiful...
+        """
+        return self.state + " (parent: " + self.parent.state + "; cost: " + self.cost + ")"
+
+
+    def get_path(self):
+        """
+        Iterate through all node's parents and create a list out of them.
+        """
+        node, result = self, [self]
+        while node.parent:
+            result.append(node.parent)
+            node = node.parent
+        return list(reversed(result))
+
+class PathNotFoundException(Exception):
+    pass
+
+
+if __name__ == '__main__':
+
+    debug = False
+    total = len(sys.argv)
+
+    if total <= 2:
+        print "You need two arguments, first one would be source, and second one target of your routing."
+        exit()
+
+    # Instantiate the problem
+    source_location, destination_location = sys.argv[1], sys.argv[2]
+    problem = ProblemRouting(source_location, destination_location)
+
+    # Instantiate the search object
+    search = Search(problem)
+
+    try:
+        path = search.go('astar')
+    except PathNotFoundException:
+        print "============================"
+        print "Rutiranje nije uspelo"
+        print "============================"
+        print "OD: " + source_location
+        print "DO: " + destination_location
+        print "============================"
+        print "Ruta ne postoji"
+        print "============================"
+    else:
+        print "============================"
+        print "Rutiranje je uspelo"
+        print "============================"
+        print "OD: " + source_location
+        print "DO: " + destination_location
+        print "============================"
+        for postal_code in path:
+            print problem.get_location_name(postal_code)
+        print "============================"
