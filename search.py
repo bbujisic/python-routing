@@ -1,7 +1,5 @@
 __author__ = 'bbujisic'
 
-from problem_routing import ProblemRouting
-import sys
 
 class Search(object):
     fringe = []
@@ -34,7 +32,7 @@ class Search(object):
                 break
 
         # Check if we solved the problem (i.e. found searched node). If yes -- return 1.
-        if problem.goal_test(parent_node.state):
+        if self.problem.goal_test(parent_node.state):
             self.path = parent_node.get_path()
             return 1
 
@@ -43,13 +41,13 @@ class Search(object):
         self.fringe.remove(parent_node)
 
         # Load all possible successors to a given state.
-        children = problem.successors_get(parent_node.state)
+        children = self.problem.successors_get(parent_node.state)
 
         # Add to fringe only the states that were not already examined.
         for child_state in children:
             if not any(closed_node.state == child_state for closed_node in self.closed):
-                child_cost = problem.cost_get(parent_node.state, child_state)
-                child_heuristics = problem.heuristics_get(child_state)
+                child_cost = self.problem.cost_get(parent_node.state, child_state)
+                child_heuristics = self.problem.heuristics_get(child_state)
                 self.fringe.append(Node(child_state, parent_node, child_cost + child_heuristics + parent_node.cost))
 
         return 0
@@ -88,44 +86,6 @@ class Node(object):
             node = node.parent
         return list(reversed(result))
 
+
 class PathNotFoundException(Exception):
     pass
-
-
-if __name__ == '__main__':
-
-    debug = False
-    total = len(sys.argv)
-
-    if total <= 2:
-        print "You need two arguments, first one would be source, and second one target of your routing."
-        exit()
-
-    # Instantiate the problem
-    source_location, destination_location = sys.argv[1], sys.argv[2]
-    problem = ProblemRouting(source_location, destination_location)
-
-    # Instantiate the search object
-    search = Search(problem)
-
-    try:
-        path = search.go('astar')
-    except PathNotFoundException:
-        print "============================"
-        print "Rutiranje nije uspelo"
-        print "============================"
-        print "OD: " + source_location
-        print "DO: " + destination_location
-        print "============================"
-        print "Ruta ne postoji"
-        print "============================"
-    else:
-        print "============================"
-        print "Rutiranje je uspelo"
-        print "============================"
-        print "OD: " + source_location
-        print "DO: " + destination_location
-        print "============================"
-        for postal_code in path:
-            print problem.get_location_name(postal_code)
-        print "============================"

@@ -76,10 +76,7 @@ class ProblemRouting(Problem):
         """
         Let's presume this will work...
         In order to have a nice heuristics, I will probably have to maintain coordinates of locations.
-
-        1. Get latitude and longitude for the given postal_code (state)
-        2. Use pythagorean theorem to get the straight line length between the state and the destination location
-        3. Return the length.
+        http://stackoverflow.com/questions/639695/how-to-convert-latitude-or-longitude-to-meters
 
         """
         return 0
